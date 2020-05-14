@@ -1,0 +1,274 @@
+From: <Saved by Windows Internet Explorer 7>
+Subject: Mex-File Utility for Fast MATLAB Port I/O
+Date: Wed, 4 Feb 2009 11:35:47 +1000
+MIME-Version: 1.0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Location: http://www.usd.edu/~schieber/psyc770/IO32.html
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.5579
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>Mex-File Utility for Fast MATLAB Port I/O</TITLE>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.6000.16788" name=3DGENERATOR></HEAD>
+<BODY>
+<H1 align=3Dcenter><FONT size=3D5>Mex-File Plug-in for Fast MATLAB Port =
+I/O=20
+Access</FONT><BR><FONT size=3D5>(Fix for Slow Port I/O in Cogent =
+2000)</FONT></H1>
+<HR>
+
+<P>The <I>inportb() </I>and <I>outportb()</I> functions for accessing =
+hardware=20
+I/O ports provided by Cogent 2000 are highly limited in their =
+utility.&nbsp; To=20
+begin with they are very slow - demonstrating latencies of 100 =
+msec.&nbsp; In=20
+addition, they can only access hardware ports located in the very lowest =
+reaches=20
+of the 64K I/O port address space (i.e., 0x000-0x3FF).&nbsp; <U>Windows' =
+Plug 'n=20
+Play manager</U> usually maps add-in PCI cards to regions much higher in =
+the=20
+address space.&nbsp; As a result, these PCI cards can not be accessed =
+using the=20
+built-in Cogent 2000 commands.</P>
+<P>In order to accomplish very fast port I/O using a NO COST add-on to =
+MATLAB,=20
+we have developed a C++ extension (mex-file) that uses native methods to =
+access=20
+low-level hardware.&nbsp; This mex-file is named <B><FONT=20
+size=3D4>io32.dll</FONT></B>.&nbsp; It uses a freeware self-installing =
+system=20
+driver named <B><FONT size=3D4>inpout32.dll</FONT></B>. [<U>Note</U>:=20
+Self-installation of the driver requires that the MATLAB user be logged =
+into=20
+Windows with Administrator privileges.&nbsp; The driver must have been=20
+previously installed in order to support non-Administrators].</P>
+<P>Once these two modules are installed in your MATLAB path, you can use =
+
+<B>io32()</B> to read and write to I/O port locations anywhere in the =
+64K=20
+address space.&nbsp; A simple benchmark test (<A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/misc/iotimer_io32b.m">iotime=
+r_io32b.m</A>=20
+or <A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/misc/iotimer_io32.m">iotimer=
+_io32.m</A>)=20
+reveals that port I/O latencies of approximately 0.010 msec (i.e., 10=20
+microseconds) can be achieved from within MATLAB using this =
+approach.</P>
+<P><U>To install this expanded capability</U>: download the <B><FONT =
+size=3D4><A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/misc/io32.dll">io32.dll</A><=
+/FONT></B>=20
+module and move it to a directory in your MATLAB path (e.g., <A=20
+href=3D"file:///c:/cog2000/Cogent2000v1.25/Toolbox">c:\cog2000\Cogent2000=
+v1.25\Toolbox</A>=20
+in the case of the USD PSYC 770 standard Cogent 2000 installation=20
+specification).&nbsp; Next, download the <B><A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/misc/inpout32.dll"><FONT=20
+size=3D4>inpout32.dll</FONT></A></B> module and move it to the <A=20
+href=3D"file:///C:/windows/system32">C:\windows\system32</A>=20
+directory.<BR>&nbsp;</P>
+<P align=3Dleft><B><FONT size=3D6>io32() Command Usage =
+Summary:</FONT></B></P>
+<TABLE id=3Dtable1 cellSpacing=3D6 cellPadding=3D6 width=3D"96%" =
+border=3D2>
+  <TBODY>
+  <TR>
+    <TD align=3Dmiddle width=3D195>object =3D<B> io32()</B>;</TD>
+    <TD>Calling <B>io32()</B> with no input arguments creates an =
+instance of=20
+      the <B>io32</B> interface object and returns a 32-bit pointer to =
+its=20
+      location.&nbsp; This command must be issued first since the =
+<U>object</U>=20
+      pointer is a required input argument for all other calls to=20
+      <B>io32()</B>.&nbsp; This <B>io32()</B> call will not work =
+properly unless=20
+      a return variable is specified (i.e., 'object' in the example to =
+the=20
+    left).</TD></TR>
+  <TR>
+    <TD align=3Dmiddle width=3D195>status =3D<B> io32( </B>object<B> =
+)</B>;</TD>
+    <TD>Calling <B>io32()</B> using one input argument and a single =
+return=20
+      variable causes the <I>inpout32.dll </I>kernel-level I/O driver to =
+be=20
+      automatically installed (i.e., no manual driver installation is=20
+      required).&nbsp; <U>object</U> is the pointer to a previously =
+created=20
+      instance of io32 (see the step performed above); and, =
+<U>status</U> is a=20
+      variable returned from the function that describes whether the =
+driver=20
+      installation process was successful (0 =3D successful).&nbsp; =
+Subsequent=20
+      attempts to perform port I/O using io32() will fail if a non-zero =
+status=20
+      value is returned here.&nbsp; This step must be performed prior to =
+any=20
+      subsequent attempts to read or write I/O port data.</TD></TR>
+  <TR>
+    <TD align=3Dmiddle width=3D195><B>io32(</B> object, address, data =
+<B>)</B>;</TD>
+    <TD>Calling <B>io32()</B> with three input parameters allows the =
+user to=20
+      output data to the specified I/O port address.&nbsp; <U>object</U> =
+is the=20
+      pointer to an <B>io32</B> object (described above); <U>address</U> =
+
+      specifies the physical address of the destination I/O port =
+(&lt;64K); and,=20
+      <U>data</U> represents the value (between 0-255) being output to =
+the I/O=20
+      port.</TD></TR>
+  <TR>
+    <TD align=3Dmiddle width=3D195>data =3D<B> io32( </B>object, address =
+
+<B>)</B>;</TD>
+    <TD>Calling <B>io32() </B>using two input arguments and one return=20
+      variable allows the user to read the contents of the specified I/O =
+
+      port.&nbsp; <U>object</U> is the pointer to a previously created =
+instance=20
+      of <B>io32</B> (see above), <U>address</U> specifies the location =
+of the=20
+      I/O port being read; and, <U>data</U> contains the integer-format =
+value=20
+      returned after reading the I/O port.</TD></TR></TBODY></TABLE>
+<P><BR><U>The following MATLAB command snippet demonstrates how to use =
+the<B>=20
+<FONT size=3D4>io32()</FONT></B> extension</U>:</P>
+<P>%create an instance of the io32 object<BR><B>ioObj =3D=20
+io32();</B><BR>%<BR>%initialize the <I>inpout32.dll</I> system=20
+driver<BR><B>status =3D io32(ioObj);</B><BR>%<BR>%if status =3D 0, you =
+are now ready=20
+to write and read to a hardware port<BR>%let's try sending the value=3D1 =
+to the=20
+parallel printer's output port (LPT1)<BR><B>address =3D=20
+hex2dec('378');&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</B>%standard LPT1 output port=20
+address<B><BR>data_out=3D1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs=
+p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+=20
+</B>%sample data value<B><BR>io32(ioObj,address,data_out);&nbsp;&nbsp;=20
+</B>%output command<BR>%<BR>%now, let's read that value back into=20
+MATLAB<BR><B>data_in=3Dio32(ioObj,address);</B><BR>%<BR>%when finished =
+with the=20
+io32 object it can be discarded via<BR>%'clear all', 'clear mex' or =
+'clear=20
+functions' command.</P>
+<HR>
+
+<P><U><FONT size=3D6><B>MATLAB</B></FONT><B><FONT size=3D6> Scripts to =
+Simplify Port=20
+I/O</FONT></B></U></P>
+<P>The code examples above reveal that using the <B><FONT=20
+size=3D4>io32()</FONT></B> extensions is a bit complex.&nbsp; In an =
+attempt to=20
+reduce this complexity, a set of MATLAB scripts has been developed to =
+simplify=20
+I/O programming. </P>
+<P>In order to have access to these scripts: download the <A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/misc/io32.dll"><FONT=20
+size=3D4>io32.dll</FONT></A>, <A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/m-files/config_io.m"><FONT=20
+size=3D4>config_io.m</FONT></A>, <A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/m-files/inp.m"><FONT=20
+size=3D4>inp.m</FONT></A> and <A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/m-files/outp.m"><FONT=20
+size=3D4>outp.m</FONT></A> files and move them to a directory in your =
+MATLAB path.=20
+In addition, download the <B><A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/misc/inpout32.dll"><FONT=20
+size=3D4>inpout32.dll</FONT></A></B> module and move it to the <A=20
+href=3D"file:///C:/windows/system32">C:\windows\system32</A> =
+directory.</P>
+<P><B><FONT size=3D6>MATLAB</FONT><FONT size=3D6> I/O Script =
+Usage:</FONT></B></P>
+<TABLE id=3Dtable2 cellSpacing=3D3 cellPadding=3D3 width=3D"94%" =
+border=3D1>
+  <TBODY>
+  <TR>
+    <TD align=3Dmiddle width=3D208><B><FONT =
+size=3D4>config_io;</FONT></B></TD>
+    <TD>Installs the <I>inpout32.dll</I> driver required to access =
+low-level=20
+      hardware.&nbsp; This command must be given prior to any attempts =
+to use=20
+      the custom <B>inp()</B> or <B>outp()</B> scripts.</TD></TR>
+  <TR>
+    <TD align=3Dmiddle width=3D208><B><FONT size=3D4>outp( address, byte =
+
+      );</FONT></B></TD>
+    <TD>This function writes the 8-bit value passed in the variable =
+named=20
+      <U>byte</U> to the I/O port specified by <U>address</U>.</TD></TR>
+  <TR>
+    <TD align=3Dmiddle width=3D208><B><FONT size=3D4>byte =3D inp( =
+address=20
+      );</FONT></B></TD>
+    <TD>This function read the I/O port location specified by =
+<U>address</U>=20
+      and returns the 8-bit result of that =
+operation.</TD></TR></TBODY></TABLE>
+<P>A simple benchmark (<A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/m-files/iotimer_inp.m">iotim=
+er_inp.m</A>)=20
+reveals that I/O using these scripts is significantly slower than =
+calling the=20
+<B><FONT size=3D4>io32()</FONT></B> object directly (as demonstrated =
+above).&nbsp;=20
+Instead of being able to read a port with a latency of approximately 10=20
+microseconds, using the <B><FONT size=3D4>inp()</FONT></B> script yields =
+a latency=20
+of approximately 40 microseconds. This is probably fast enough for many=20
+experimental psychology applications (such as scanning a button box,=20
+etc.).&nbsp; Use direct calls to <B>io32()</B> if your application =
+requires the=20
+shortest possible I/O latencies (e.g., updating an analog output =
+stream).</P>
+<P><U>The following MATLAB code snippet demonstrates how to use the new =
+I/O=20
+scripts</U>:</P>
+<P>%initialize the <I>inpout32.dll</I> low-level I/O=20
+driver<BR><B>config_io;</B><BR>%<U>optional step</U>: verify that the=20
+<I>inpout32.dll</I> driver was successfully installed<BR><B>global=20
+cogent;<BR>if( cogent.io.status ~=3D 0 )<BR>&nbsp;&nbsp; error('inp/outp =
+
+installation failed');<BR>end</B><BR>%write a value to the default LPT1 =
+printer=20
+output port (at 0x378)<BR><B>address =3D hex2dec('378');<BR>byte =3D=20
+99;<BR>outp(address,byte);</B><BR>%read back the value written to the =
+printer=20
+port above<BR><B>datum=3Dinp(address);</B></P>
+<HR>
+
+<P>Additional information about the INPOUT32.DLL driver for Windows =
+NT/2000/XP=20
+can be found <A=20
+href=3D"http://www.logix4u.net/inpout_theory.htm">here</A>.<BR><BR>Inform=
+ation=20
+about <B>IOReadWrite</B>, a Java class that uses the <I>UserPort.sys</I> =
+driver=20
+to perform port I/O, can be found <A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/IOReadWrite.html">here</A>.<=
+BR>An=20
+improved version of <B>IOReadWrite</B> based upon the inpout32.dll =
+driver can be=20
+found <A=20
+href=3D"http://www.usd.edu/~schieber/psyc770/IOReadWrite2.html">here</A>.=
+</P>
+<P><B><FONT size=3D5>Last revised: 10 April, 2008</FONT></B></P>
+<HR>
+
+<P align=3Dcenter><A href=3D"http://www.usd.edu/~schieber">Professor =
+Schieber's Home=20
+Page</A> - <A href=3D"javascript:history.back()">Previous Page</A>=20
+</P></BODY></HTML>
